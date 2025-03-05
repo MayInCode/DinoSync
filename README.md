@@ -1,14 +1,11 @@
-> [!IMPORTANT]  
-> The Evrima update has introduced changes to logging, so I’ve updated the Evrima Bot to the latest game build `0.17.56`. Please do not use this bot until the new release.
-
 # The Isle: Evrima Discord RCON Bot
 ![GitHub License](https://img.shields.io/github/license/dkoz/ascension-bot?style=flat-square) ![Discord](https://img.shields.io/discord/802778278200475658?style=flat-square&label=community) ![Discord](https://img.shields.io/discord/1009881575187566632?style=flat-square&label=support)
 
  This is a discord RCON bot for The Isle: Evrima. (This is not an injection bot!)
 
 ## Important
- Most of the functionality of this bot is designed for the Pterodactyl game panel, or secure FTP connections. This bot will not work properly without it. The only function that will run without the panel is RCON.
-
+ SFTP required.
+ 
 ## Optional Environmental Variables
 Variable | Description
 --- | ---
@@ -23,13 +20,6 @@ FTP_PASS | Password for your FTP account.
 FILE_PATH | File path to `TheIsle-Shipping.log` file.
 ADMIN_FILE_PATH | File path to your `Game.ini` file.
 ENABLE_INJECTIONS | Enable admin injections for your bot.
-PTERO_ENABLE | Enable Pterodactyl Panel support
-PTERO_URL | Url to your pterodactyl panel.
-PTERO_API | API key generated under your pterodactyl panel account.
-PTERO_WHITELIST | Specified discord user ids that can control game servers.
 ENABLE_RESTART | Enables the restart cog.
 RESTART_SERVERID | UUID for your pterodactyl server.
 RESTART_CHANNEL | Channel that restarts will be reported to.
-
-## Installation
-For detailed installation instructions, please refer to our [git wiki](https://github.com/dkoz/evrima-bot/wiki). Specific instructions for [Linux](https://github.com/dkoz/evrima-bot/wiki/Linux-Installation) and [Windows](https://github.com/dkoz/evrima-bot/wiki/Windows-Installation) can be found at their respective links.
