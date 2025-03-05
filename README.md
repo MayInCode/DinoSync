@@ -1,11 +1,11 @@
 # The Isle: Evrima Discord RCON Bot
-![GitHub License](https://img.shields.io/github/license/dkoz/ascension-bot?style=flat-square) ![Discord](https://img.shields.io/discord/802778278200475658?style=flat-square&label=community) ![Discord](https://img.shields.io/discord/1009881575187566632?style=flat-square&label=support)
+![GitHub License](https://img.shields.io/github/license/dkoz/ascension-bot?style=flat-square)
 
  This is a discord RCON bot for The Isle: Evrima. (This is not an injection bot!)
 
 ## Important
  SFTP required.
- 
+
 ## Optional Environmental Variables
 Variable | Description
 --- | ---
