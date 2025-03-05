@@ -6,7 +6,7 @@ import re
 import asyncio
 from util.config import FTP_HOST, FTP_PASS, FTP_PORT, FTP_USER
 from util.config import ENABLE_LOGGING, KILLFEED_CHANNEL, FILE_PATH
-
+  
 class KillFeed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -17,12 +17,12 @@ class KillFeed(commands.Cog):
         self.filepath = FILE_PATH
         self.kill_feed_channel_id = KILLFEED_CHANNEL
         self.last_position = None
-
+  
     @commands.Cog.listener()
     async def on_ready(self):
         print("KillFeed cog is ready.")
         self.check_kill_feed.start()
-
+  
     async def async_sftp_operation(self, operation, *args, **kwargs):
         loop = asyncio.get_event_loop()
         with paramiko.Transport((self.ftp_host, self.ftp_port)) as transport:
@@ -33,7 +33,7 @@ class KillFeed(commands.Cog):
                 return result
             finally:
                 sftp.close()
-
+  
     def read_file(self, sftp, filepath, last_position):
         with sftp.file(filepath, "r") as file:
             if last_position is None:
@@ -44,31 +44,27 @@ class KillFeed(commands.Cog):
             file_content = file.read().decode()
             new_position = file.tell()
         return file_content, new_position
-
+  
     def parse_kill_feed(self, file_content):
-        pattern = r"\[LogTheIsleKillData\]: (.*?) \[(\d+)\] Dino: (.*?), (Male|Female), \d+\.\d+ - (Died from Natural cause|Killed the following player: (.*?), \[(\d+)\], Dino: (.*?),)"
+        pattern = r"\[([\d\.\-]+)\]\[LogTheIsleKillData\]: (.*?) \[(\d+)\] Dino: (.*?), (Male|Female), \d+\.\d+ - (Died from Natural cause|Killed the following player: (.*?), \[(\d+)\], Dino: (.*?),)"
         matches = re.findall(pattern, file_content)
-
+  
         kill_feed = []
         for match in matches:
             try:
                 print(f"Parsing match: {match}")
-                time, killer, killer_id, killer_dino, event_type, victim, victim_id, victim_dino = match
+                timestamp, killer, killer_id, killer_dino, gender, event_type, victim, victim_id, victim_dino = match
                 if "Died from Natural cause" in event_type:
-                    message = nextcord.Embed(
-                        title="Kill Feed",
-                        description=f"[{time}] {killer} [{killer_id}] {killer_dino} died from natural causes."
-                    )
+                    # Natural death with RIP emoji
+                    message = f"{killer} ({killer_dino}) died from natural causes. ☠️"
                 elif "Killed the following player" in event_type:
-                    message = nextcord.Embed(
-                        title="Kill Feed",
-                        description=f"[{time}] {killer} [{killer_id}] {killer_dino} killed {victim} [{victim_id}] {victim_dino}."
-                    )
+                    # Killed with knife emoji
+                    message = f"{killer} ({killer_dino}) killed {victim} ({victim_dino}). 🔪"
                 kill_feed.append(message)
             except Exception as e:
                 print(f"Error parsing match: {match} - {e}")
         return kill_feed
-
+  
     @tasks.loop(seconds=30)
     async def check_kill_feed(self):
         file_content, new_position = await self.async_sftp_operation(
@@ -82,7 +78,7 @@ class KillFeed(commands.Cog):
                 await self.send_kill_feed(kill_feed)
         elif self.last_position is None:
             self.last_position = new_position
-
+  
     async def send_kill_feed(self, kill_feed):
         channel = self.bot.get_channel(self.kill_feed_channel_id)
         if channel:
@@ -90,13 +86,14 @@ class KillFeed(commands.Cog):
                 if len(message) > 2000:
                     message = message[:2000]
                 try:
-                    await channel.send(embed=message)
+                    # Sending as normal text message instead of an embed
+                    await channel.send(message)
                     await asyncio.sleep(1)
                 except Exception as e:
                     print(f"Error sending message: {e}")
         else:
             print("Channel not found or bot does not have permission to access it.")
-
+  
 def setup(bot):
     if ENABLE_LOGGING:
         bot.add_cog(KillFeed(bot))

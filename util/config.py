@@ -34,6 +34,5 @@ RESTART_CHANNEL = int(os.getenv("RESTART_CHANNEL", 0))
 # DinoTracker Configuration
 ENABLE_DINO_TRACKER = os.getenv('ENABLE_DINO_TRACKER', 'false').lower() in ['true', '1', 'yes']
 DINOTRACKER_CHANNEL = int(os.getenv("DINOTRACKER_CHANNEL", 0))
-
 # ChatCommands Configuration
 ENABLE_CHAT_COMMANDS = os.getenv('ENABLE_CHAT_COMMANDS', 'false').lower() in ['true', '1', 'yes']
