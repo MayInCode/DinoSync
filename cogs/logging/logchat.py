@@ -61,7 +61,7 @@ class LogChat(commands.Cog):
             })
         return chat_messages
 
-    @tasks.loop(seconds=30)
+    @tasks.loop(seconds=5)
     async def check_chat_log(self):
         file_content, new_position = await self.async_sftp_operation(
             self.read_file, self.filepath, self.last_position
@@ -79,11 +79,9 @@ class LogChat(commands.Cog):
         channel = self.bot.get_channel(self.chat_log_channel_id)
         if channel:
             for message in chat_messages:
-                embed = nextcord.Embed(
-                    title=f"{message['Channel']} - {message['Group']}",
-                    description=f"{message['Player']} [{message['SteamID64']}]: {message['Message']}",
-                )
-                await channel.send(embed=embed)
+                # Format as: **Player**: Message
+                formatted_message = f"**{message['Player']}**: {message['Message']}"
+                await channel.send(formatted_message)
                 await asyncio.sleep(1)
 
 def setup(bot):

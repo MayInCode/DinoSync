@@ -5,7 +5,6 @@ import os
 import json
 import re
 import asyncio
-import logging
 from util.config import FTP_HOST, FTP_PASS, FTP_PORT, FTP_USER
 from util.config import ENABLE_LOGGING, FILE_PATH
 
@@ -30,9 +29,9 @@ class LogPlayers(commands.Cog):
             player_data = self.parse_log_file(file_content)
             # print(f"Parsed player data: {player_data}")
             self.update_json(player_data)
-            logging.info("Player data updated automatically.")
+            print("Player data updated automatically.")
         else:
-            logging.error("Failed to connect to SFTP server.")
+            print("Failed to connect to SFTP server.")
 
     @update_players_background.before_loop
     async def before_update_players(self):
@@ -108,7 +107,7 @@ class LogPlayers(commands.Cog):
         file_content = await self.async_sftp_operation(self.read_file, self.filepath)
         if file_content is not None:
             player_data = self.parse_log_file(file_content)
-            logging.info(f"Manually parsed player data: {player_data}")
+            print(f"Manually parsed player data: {player_data}")
             self.update_json(player_data)
             await ctx.send("Player data updated.")
         else:
@@ -141,10 +140,9 @@ class LogPlayers(commands.Cog):
 
         except FileNotFoundError:
             await ctx.send("Players database not found.")
-            logging.error("Players database not found.")
 
 def setup(bot):
     if ENABLE_LOGGING:
         bot.add_cog(LogPlayers(bot))
     else:
-        logging.info("LogPlayers cog is disabled.")
+        print("LogPlayers cog is disabled.")

@@ -4,7 +4,6 @@ from nextcord.ext import commands, tasks
 from gamercon_async import EvrimaRCON
 from pydactyl import PterodactylClient
 from datetime import datetime
-import logging
 import pytz
 from util.config import RCON_HOST, RCON_PORT, RCON_PASS
 from util.config import PTERO_API, PTERO_URL
@@ -32,17 +31,17 @@ class RestartServer(commands.Cog):
 
         try:
             response = self.ptero_client.client.servers.send_power_action(server_id, 'restart')
-            logging.info(f'Restart command sent to server with ID "{server_id}". Response: {response.status_code}')
+            print(f'Restart command sent to server with ID "{server_id}". Response: {response.status_code}')
 
             await asyncio.sleep(5)
 
             kill_response = self.ptero_client.client.servers.send_power_action(server_id, 'kill')
             if kill_response.status_code == 204:
-                logging.info(f'Successfully sent kill command to server with ID "{server_id}".')
+                print(f'Successfully sent kill command to server with ID "{server_id}".')
             else:
-                logging.error(f'Failed to send kill command: {kill_response.status_code} {kill_response.text}')
+                print(f'Failed to send kill command: {kill_response.status_code} {kill_response.text}')
         except Exception as e:
-            logging.error(f'Error during restart: {e}')
+            print(f'Error during restart: {e}')
 
 
     @nextcord.slash_command(
@@ -62,7 +61,7 @@ class RestartServer(commands.Cog):
             if channel:
                 await channel.send("Scheduled server restart initiated. Restarting in 5 minutes.")
             else:
-                logging.error("Announcement channel not found.")
+                print("Announcement channel not found.")
 
             await self.perform_restart(self.server_id, 300)
 
@@ -80,4 +79,4 @@ def setup(bot):
             cog.restart
         ])
     else:
-        logging.info("RestartServer cog disabled.")
+        print("RestartServer cog disabled.")

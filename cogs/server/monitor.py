@@ -1,13 +1,11 @@
 import nextcord
 from nextcord.ext import commands, tasks
 from util.config import RCON_HOST, RCON_PORT, RCON_PASS
-import util.constants as c
 from gamercon_async import EvrimaRCON
 from util.functions import saveserverinfo, loadserverinfo
 import pytz
 import datetime
 import re
-import logging
 
 class EvrimaMonitorCog(commands.Cog):
     def __init__(self, bot):
@@ -19,14 +17,16 @@ class EvrimaMonitorCog(commands.Cog):
         self.update_bot_activity.start()
 
     def create_embed(self, server_info):
-        embed_timestamp = pytz.utc.localize(datetime.datetime.utcnow()).astimezone(pytz.timezone('US/Central')).strftime('%m/%d/%Y %H:%M %Z')
+        embed_icon="https://cdn.discordapp.com/attachments/855527844670865438/1301430943235706942/communityIcon_nmgut76oq1461.png?ex=67247384&is=67232204&hm=f78ed1501ba5f5148b92451d9198be77f6f8be01c365d1be24079136365138c7&"
+        embed_timestamp = pytz.utc.localize(datetime.datetime.utcnow()).astimezone(pytz.timezone('US/Central')).strftime('%Y-%m-%d %H:%M:%S')
         embed = nextcord.Embed(title=server_info.get("ServerDetailsServerName", "N/A"), color=nextcord.Color.blurple())
+        embed.set_author(name="Server Info", icon_url=embed_icon)
         embed.add_field(name="Players", value=f"{server_info.get('ServerCurrentPlayers', 0)}/{server_info.get('ServerMaxPlayers', 0)}", inline=False)
         embed.add_field(name="Map", value=server_info.get("ServerMap", "N/A"), inline=False)
         embed.add_field(name="Day Length", value=f"{server_info.get('ServerDayLengthMinutes', 0)} minutes", inline=False)
         embed.add_field(name="Night Length", value=f"{server_info.get('ServerNightLengthMinutes', 0)} minutes", inline=False)
-        embed.set_thumbnail(url=c.BOT_ICON)
-        embed.set_footer(text=f"{c.BOT_TEXT} {c.BOT_VERSION} • Updated: {embed_timestamp}", icon_url=c.BOT_ICON)
+        embed.set_thumbnail(url=embed_icon)
+        embed.set_footer(text=f"Last updated: {embed_timestamp}", icon_url=embed_icon)
         
         return embed
 
@@ -84,10 +84,10 @@ class EvrimaMonitorCog(commands.Cog):
                 }
                 return server_info
             else:
-                logging.error("Pattern did not match the response format.")
+                print("Pattern did not match the response format.")
                 return None
         except Exception as e:
-            logging.error(f"Error retrieving server info: {e}")
+            print(f"Error retrieving server info: {e}")
             return None
 
     @tasks.loop(seconds=30)
@@ -101,7 +101,7 @@ class EvrimaMonitorCog(commands.Cog):
                 activity = nextcord.Activity(type=nextcord.ActivityType.watching, name=activity_text)
                 await self.bot.change_presence(activity=activity)
         except Exception as e:
-            logging.error(f"Error updating bot activity: {e}")
+            print(f"Error updating bot activity: {e}")
 
     @update_bot_activity.before_loop
     async def before_update_bot_activity(self):
@@ -123,7 +123,7 @@ class EvrimaMonitorCog(commands.Cog):
                                 embed = self.create_embed(server_info)
                                 await message.edit(embed=embed)
                         except Exception as e:
-                            logging.error(f"Error updating server info for guild {guild.id}: {e}")
+                            print(f"Error updating server info for guild {guild.id}: {e}")
 
     @update_server_info.before_loop
     async def before_update_server_info(self):

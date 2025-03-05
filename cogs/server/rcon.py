@@ -71,9 +71,82 @@ class EvrimaRcon(commands.Cog):
         
     @rcon.subcommand(description="Get details about the server.")
     async def serverinfo(self, interaction: nextcord.Interaction):
-        command = b'\x02' + b'\x12' + b'\x00'
-        response = await self.run_rcon(command)
-        await interaction.response.send_message(f"RCON response: {response}", ephemeral=True)
+        await interaction.response.defer(ephemeral=False)
+        try:
+            # Get server info
+            command = b'\x02' + b'\x12' + b'\x00'
+            response = await self.run_rcon(command)
+            
+            # Log raw response for debugging
+            print(f"Raw server response: {response}")
+            logging.info(f"Server info raw response: {response}")
+            
+            # Create a basic embed with the server info
+            embed = nextcord.Embed(
+                title="Server Information",
+                description="Details about the game server",
+                color=nextcord.Color.blue()
+            )
+            
+            # Add the raw response to the embed in a code block
+            if response:
+                # Parse response to find server name
+                server_name = "Unknown Server"
+                if "ServerName:" in response:
+                    name_part = response.split("ServerName:", 1)[1]
+                    if "," in name_part:
+                        server_name = name_part.split(",", 1)[0].strip()
+                
+                embed.add_field(
+                    name="Server Name", 
+                    value=server_name,
+                    inline=False
+                )
+                    
+                # Format the rest of the response
+                formatted_response = response.replace(", ", "\n• ")
+                formatted_response = "• " + formatted_response
+                
+                if len(formatted_response) > 1024:
+                    # If response is too long, split it
+                    parts = [formatted_response[i:i+1024] for i in range(0, len(formatted_response), 1024)]
+                    for i, part in enumerate(parts):
+                        embed.add_field(
+                            name=f"Server Details (Part {i+1})" if i > 0 else "Server Details",
+                            value=part,
+                            inline=False
+                        )
+                else:
+                    embed.add_field(name="Server Details", value=formatted_response, inline=False)
+            else:
+                embed.add_field(name="Error", value="No response from server", inline=False)
+            
+            # Add a thumbnail
+            embed.set_thumbnail(url="https://raw.githubusercontent.com/dkoz/evrima-bot/refs/heads/main/assets/isle.png")
+            
+            # Add timestamp
+            embed.timestamp = nextcord.utils.utcnow()
+            
+            # Send the embed
+            await interaction.followup.send(embed=embed)
+            print("Embed sent successfully")
+            
+        except Exception as e:
+            # Log the error
+            error_msg = f"Error in serverinfo command: {str(e)}"
+            print(error_msg)
+            logging.error(error_msg)
+            import traceback
+            traceback.print_exc()
+            
+            # Send error message
+            try:
+                await interaction.followup.send(f"An error occurred: {str(e)}\n\nRaw response: ```{response if 'response' in locals() else 'No response received'}```")
+            except:
+                try:
+                    await interaction.followup.send("An error occurred while processing server information.")
+                except:
+                    pass
 
     @rcon.subcommand(description="Get details about a player.")
     async def playerinfo(self, interaction: nextcord.Interaction, user_id: str):

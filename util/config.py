@@ -30,3 +30,10 @@ PTERO_WHITELIST = [int(id.strip()) for id in os.getenv("PTERO_WHITELIST", "").sp
 ENABLE_RESTART = os.getenv('ENABLE_RESTART', 'false').lower() in ['true', '1', 'yes']
 RESTART_SERVERID = int(os.getenv("RESTART_SERVERID", 0))
 RESTART_CHANNEL = int(os.getenv("RESTART_CHANNEL", 0))
+
+# DinoTracker Configuration
+ENABLE_DINO_TRACKER = os.getenv('ENABLE_DINO_TRACKER', 'false').lower() in ['true', '1', 'yes']
+DINOTRACKER_CHANNEL = int(os.getenv("DINOTRACKER_CHANNEL", 0))
+
+# ChatCommands Configuration
+ENABLE_CHAT_COMMANDS = os.getenv('ENABLE_CHAT_COMMANDS', 'false').lower() in ['true', '1', 'yes']

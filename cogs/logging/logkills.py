@@ -4,7 +4,6 @@ import paramiko
 import os
 import re
 import asyncio
-import logging
 from util.config import FTP_HOST, FTP_PASS, FTP_PORT, FTP_USER
 from util.config import ENABLE_LOGGING, KILLFEED_CHANNEL, FILE_PATH
 
@@ -21,7 +20,7 @@ class KillFeed(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        logging.info("KillFeed cog is ready.")
+        print("KillFeed cog is ready.")
         self.check_kill_feed.start()
 
     async def async_sftp_operation(self, operation, *args, **kwargs):
@@ -53,7 +52,7 @@ class KillFeed(commands.Cog):
         kill_feed = []
         for match in matches:
             try:
-                logging.info(f"Parsing match: {match}")
+                print(f"Parsing match: {match}")
                 time, killer, killer_id, killer_dino, event_type, victim, victim_id, victim_dino = match
                 if "Died from Natural cause" in event_type:
                     message = nextcord.Embed(
@@ -67,7 +66,7 @@ class KillFeed(commands.Cog):
                     )
                 kill_feed.append(message)
             except Exception as e:
-                logging.error(f"Error parsing match: {match} - {e}")
+                print(f"Error parsing match: {match} - {e}")
         return kill_feed
 
     @tasks.loop(seconds=30)
@@ -94,12 +93,12 @@ class KillFeed(commands.Cog):
                     await channel.send(embed=message)
                     await asyncio.sleep(1)
                 except Exception as e:
-                    logging.error(f"Error sending message: {e}")
+                    print(f"Error sending message: {e}")
         else:
-            logging.error("Channel not found or bot does not have permission to access it.")
+            print("Channel not found or bot does not have permission to access it.")
 
 def setup(bot):
     if ENABLE_LOGGING:
         bot.add_cog(KillFeed(bot))
     else:
-        logging.info("KillFeed cog is disabled.")
+        print("KillFeed cog is disabled.")
