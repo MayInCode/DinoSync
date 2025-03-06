@@ -1,9 +1,20 @@
-version: '3.8'
+version: '3'
+
 services:
-  evrimabot:
-    build: .
-    volumes:
-      - ./data:/app/data
-    env_file:
-      - .env
+  dinosync:
+    image: pmay4/dinosync
+    # Alternatively, build from local Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./logs:/app/logs  # Optional: for persistent logs
+    # networks:
+    #   - bot_network  # Optional: if you need specific networking
+
+# Optional: define custom networks
+# networks:
+#   bot_network:
+#     driver: bridge
