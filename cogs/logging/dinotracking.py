@@ -38,7 +38,8 @@ class DinoTracker(commands.Cog):
             'Dilophosaurus',
             'Herrerasaurus',
             'Troodon',
-            'Deinosuchus'
+            'Deinosuchus',
+            'Pteranodon'  # Moved from flyers
         ]
         
         self.herbivores = [
@@ -48,12 +49,13 @@ class DinoTracker(commands.Cog):
             'Hypsilophodon',
             'Pachycephalosaurus',
             'Maiasaura',
-            'Diabloceratops',
-            'Beipiaosaurus',
-            'Gallimimus'
+            'Diabloceratops'
         ]
         
-        self.flyers = ['Pteranodon']
+        self.omnivores = [  # New group
+            'Gallimimus',
+            'Beipiaosaurus'
+        ]
         
         # Common name mappings (BP_Carno_C might show up instead of Carnotaurus)
         self.name_mappings = {
@@ -322,22 +324,22 @@ class DinoTracker(commands.Cog):
                 print(f"Adding herbivores section")
                 embed.add_field(name="🌿 Herbivores", value=herbivore_text, inline=False)
             
-            # Add flyers section
-            flyer_text = ""
-            for dino in self.flyers:
+            # Add omnivores section
+            omnivore_text = ""
+            for dino in self.omnivores:
                 count = self.dino_counts.get(dino, 0)
-                flyer_text += f"**{dino}**: {count}\n"
+                omnivore_text += f"**{dino}**: {count}\n"
             
-            if flyer_text:
-                print(f"Adding flyers section")
-                embed.add_field(name="🦅 Flying", value=flyer_text, inline=False)
+            if omnivore_text:
+                print(f"Adding omnivores section")
+                embed.add_field(name="🍽️ Omnivores", value=omnivore_text, inline=False)
             
             # Add uncategorized section for any dinosaurs not in our lists
             uncategorized_text = ""
             for dino, count in self.dino_counts.items():
                 if (dino not in self.carnivores and 
                     dino not in self.herbivores and 
-                    dino not in self.flyers):
+                    dino not in self.omnivores):
                     uncategorized_text += f"**{dino}**: {count}\n"
             
             if uncategorized_text:
@@ -355,14 +357,29 @@ class DinoTracker(commands.Cog):
                     await status_message.edit(embed=embed)
                     print("Status message updated successfully")
                 except nextcord.NotFound:
-                    # Message was deleted or not found, send a new one
-                    print("Status message not found, sending new one")
+                    # Message was deleted or not found, fetch the most recent message
+                    print("Status message not found, fetching the most recent message")
+                    async for message in channel.history(limit=1):
+                        if message.author == self.bot.user:
+                            self.status_message_id = message.id
+                            await message.edit(embed=embed)
+                            print("Most recent message updated successfully")
+                            return
+                    # If no message found, send a new one
+                    print("No previous message found, sending new one")
                     status_message = await channel.send(embed=embed)
                     self.status_message_id = status_message.id
                     print(f"New status message ID: {self.status_message_id}")
             else:
                 # First time sending the status message
                 print("First time sending status message")
+                async for message in channel.history(limit=1):
+                    if message.author == self.bot.user:
+                        self.status_message_id = message.id
+                        await message.edit(embed=embed)
+                        print("Most recent message updated successfully")
+                        return
+                # If no message found, send a new one
                 status_message = await channel.send(embed=embed)
                 self.status_message_id = status_message.id
                 print(f"New status message ID: {self.status_message_id}")

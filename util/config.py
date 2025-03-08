@@ -10,6 +10,7 @@ RCON_PORT = int(os.getenv("RCON_PORT", 25575))
 RCON_PASS = os.getenv("RCON_PASS", "default_rcon_password")
 
 CHATLOG_CHANNEL = int(os.getenv("CHATLOG_CHANNEL", 0))
+SPATIALCHAT_CHANNEL = int(os.getenv('SPATIALCHAT_CHANNEL', 0))
 KILLFEED_CHANNEL = int(os.getenv("KILLFEED_CHANNEL", 0))
 ADMINLOG_CHANNEL = int(os.getenv("ADMINLOG_CHANNEL", 0))
 

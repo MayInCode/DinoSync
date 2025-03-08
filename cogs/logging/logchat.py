@@ -6,7 +6,7 @@ import re
 import asyncio
 import logging
 from util.config import FTP_HOST, FTP_PASS, FTP_PORT, FTP_USER
-from util.config import ENABLE_LOGGING, CHATLOG_CHANNEL, FILE_PATH
+from util.config import ENABLE_LOGGING, CHATLOG_CHANNEL, SPATIALCHAT_CHANNEL, FILE_PATH
 
 class LogChat(commands.Cog):
     def __init__(self, bot):
@@ -17,6 +17,7 @@ class LogChat(commands.Cog):
         self.ftp_password = FTP_PASS
         self.filepath = FILE_PATH
         self.chat_log_channel_id = CHATLOG_CHANNEL
+        self.spatial_chat_channel_id = SPATIALCHAT_CHANNEL
         self.last_position = None
 
     @commands.Cog.listener()
@@ -76,12 +77,17 @@ class LogChat(commands.Cog):
             self.last_position = new_position
 
     async def send_chat_messages(self, chat_messages):
-        channel = self.bot.get_channel(self.chat_log_channel_id)
-        if channel:
-            for message in chat_messages:
-                # Format as: **Player**: Message
-                formatted_message = f"**{message['Player']}**: {message['Message']}"
-                await channel.send(formatted_message)
+        global_channel = self.bot.get_channel(self.chat_log_channel_id)
+        spatial_channel = self.bot.get_channel(self.spatial_chat_channel_id)
+        
+        for message in chat_messages:
+            formatted_message = f"**{message['Player']}**: {message['Message']}"
+            
+            if message['Channel'] == "Global" and global_channel:
+                await global_channel.send(formatted_message)
+                await asyncio.sleep(1)
+            elif message['Channel'] == "Spatial" and spatial_channel:
+                await spatial_channel.send(formatted_message)
                 await asyncio.sleep(1)
 
 def setup(bot):
